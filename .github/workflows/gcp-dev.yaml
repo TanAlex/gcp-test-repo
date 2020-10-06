@@ -37,6 +37,7 @@ jobs:
     - name: Build
       shell: bash
       run: |-
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
         if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
           if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
               echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
@@ -61,6 +62,7 @@ jobs:
       run: |-
         env
         echo $PROJECT_ID
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
         if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
           if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
               echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"

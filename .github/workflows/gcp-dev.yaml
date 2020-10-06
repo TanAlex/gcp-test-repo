@@ -1,14 +1,22 @@
-name: Build and Deploy
+name: Deploy to Dev
 
 on:
   push:
     branches:
     - 'ENV-dev'
 
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'action (deploy or rollback)'
+        required: true
+        default: 'deploy'
+
 env:
   PROJECT_ID: ${{ secrets.GCP_DEV_PROJECT_ID }}
   RUN_REGION: us-central1
   SERVICE_NAME: my-test-service
+  RUN_ACTION: "${{ github.event.inputs.action }}"
 
 jobs:
   setup-build-deploy:
@@ -27,17 +35,22 @@ jobs:
         project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
 
     - name: Build
-          run: |-
-            echo "Buiding ..."
-            export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
-            echo "MY_PROJET_ID is:"
-            echo $MY_PROJECT_ID
-            echo "PROJET_ID is:"
-            echo $PROJECT_ID
-            gcloud services list --enabled
+      run: |-
+        echo "Buiding ..."
+        export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
+        echo "MY_PROJET_ID is:"
+        echo $MY_PROJECT_ID
+        echo "PROJET_ID is:"
+        echo $PROJECT_ID
+        echo "RUN_ACTION:"
+        echo $RUN_ACTION
+        gcloud services list --enabled
+        
 
     - name: Deploy
       run: |-
         env
         echo $PROJECT_ID
+        echo "RUN_ACTION:"
+        echo $RUN_ACTION
         gsutil ls

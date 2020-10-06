@@ -35,6 +35,7 @@ jobs:
         project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
 
     - name: Build
+      shell: bash
       run: |-
         if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
           if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
@@ -56,6 +57,7 @@ jobs:
         
 
     - name: Deploy
+      shell: bash
       run: |-
         env
         echo $PROJECT_ID

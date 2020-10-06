@@ -61,8 +61,6 @@ jobs:
 
     - name: Build
       shell: bash
-      env:
-        
       run: |-
         echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
         if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then

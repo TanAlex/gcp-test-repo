@@ -2,8 +2,18 @@
 Example used in the Cloud Build GitHub app tutorial
 https://cloud.google.com/cloud-build/docs/run-builds-on-github
 
-The env in github action run
+This .github/workflows/gcp.yaml shows how to use Github action to trigger GCP operations
 
+Key knowledge notes:
+* `env` at top will assign the ENV variables that can be used in all steps
+* `env` assigned in each step will only exist in that step, they won't persist in the next step
+* To persist ENV variables, use the trick like `echo "::set-env name=RUN_REGION::$RUN_REGION"`
+* The `if: github.ref == 'refs/heads/ENV-dev'` makes the step conditional. This step will only be executed when the condition is met.
+
+
+
+The env in github action run
+```
 LEIN_HOME=/usr/local/lib/lein
 M2_HOME=/usr/share/apache-maven-3.6.3
 GOROOT_1_11_X64=/opt/hostedtoolcache/go/1.11.13/x64
@@ -87,17 +97,16 @@ SELENIUM_JAR_PATH=/usr/share/java/selenium-server-standalone.jar
 GITHUB_WORKSPACE=/home/runner/work/gcp-test-repo/gcp-test-repo
 CHROME_BIN=/usr/bin/google-chrome
 HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
-
-Only when it runs as GITHUB_EVENT_NAME=workflow_dispatch
-we will get the parameters for workflow
-We can use
 ```
-if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ];then
-   if [ "$GITHUB_REF" != "refs/heads/dev" ];then
-      echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
-      exit(1)
-   fi
-else
+We have a line:
+```
+RUN_ACTION: "${{ github.event.inputs.action }}"
+```
+But, the variable only gets assigned when it runs as GITHUB_EVENT_NAME=workflow_dispatch
+
+If not, we need to assign it manually, otherwise it will be empty
+```
+if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ];then
    RUN_ACTION=deploy
 fi
 ```

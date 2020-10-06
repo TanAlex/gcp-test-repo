@@ -1,0 +1,112 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+    - 'ENV-*'
+    - 'master'
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'action (deploy or rollback)'
+        required: true
+        default: 'deploy'
+
+env:
+  # PROJECT_ID: ${{ secrets.GCP_DEV_PROJECT_ID }}
+  # RUN_REGION: us-central1
+  # SERVICE_NAME: my-test-service
+  RUN_ACTION: "${{ github.event.inputs.action }}"
+
+jobs:
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    - if: github.ref == 'refs/heads/ENV-dev'
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GCP_DEV_SA_KEY }}
+        project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
+
+
+    - if: github.ref == 'refs/heads/ENV-qa'
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GCP_QA_SA_KEY }}
+        project_id: ${{ secrets.GCP_QA_PROJECT_ID }}
+
+
+    - if: github.ref == 'refs/heads/master'
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GCP_PROD_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROD_PROJECT_ID }}
+
+    - if: github.ref == 'refs/heads/ENV-dev'
+      env:
+        RUN_REGION: us-central1
+        SERVICE_NAME: my-test-dev-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
+        
+    - if: github.ref == 'refs/heads/ENV-qa'
+      env:
+        RUN_REGION: us-central2
+        SERVICE_NAME: my-test-qa-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
+
+    - if: github.ref == 'refs/heads/master'
+      env:
+        RUN_REGION: us-central3
+        SERVICE_NAME: my-test-prod-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
+
+    - name: Build
+      shell: bash
+      run: |-
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
+        if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+          RUN_ACTION=deploy
+        fi
+        echo "Buiding ..."
+        export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
+        echo "MY_PROJET_ID is: $MY_PROJECT_ID"
+        echo 
+        echo "PROJET_ID is: $PROJECT_ID"
+        echo 
+        echo "RUN_ACTION: $RUN_ACTION"
+        echo 
+        echo "SERVICE_NAME: $SERVICE_NAME"
+        echo "RUN_REGION: $RUN_REGION"
+        gcloud config set compute/region "$RUN_REGION"
+        gcloud services list --enabled
+        
+
+    - name: Deploy
+      shell: bash
+      run: |-
+        env
+        echo $PROJECT_ID
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
+        if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+          RUN_ACTION=deploy
+        fi
+        echo "RUN_ACTION: $RUN_ACTION"
+        echo "SERVICE_NAME: $SERVICE_NAME"
+        echo "RUN_REGION: $RUN_REGION"
+        gsutil ls

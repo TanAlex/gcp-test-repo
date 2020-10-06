@@ -35,9 +35,7 @@ jobs:
         version: '290.0.1'
         service_account_key: ${{ secrets.GCP_DEV_SA_KEY }}
         project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
-      env:
-        RUN_REGION: us-central1
-        SERVICE_NAME: my-test-dev-service
+
 
     - if: github.ref == 'refs/heads/ENV-qa'
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -45,9 +43,7 @@ jobs:
         version: '290.0.1'
         service_account_key: ${{ secrets.GCP_QA_SA_KEY }}
         project_id: ${{ secrets.GCP_QA_PROJECT_ID }}
-      env:
-        RUN_REGION: us-central2
-        SERVICE_NAME: my-test-qa-service
+
 
     - if: github.ref == 'refs/heads/master'
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -55,9 +51,30 @@ jobs:
         version: '290.0.1'
         service_account_key: ${{ secrets.GCP_PROD_SA_KEY }}
         project_id: ${{ secrets.GCP_PROD_PROJECT_ID }}
+
+    - if: github.ref == 'refs/heads/ENV-dev'
+      env:
+        RUN_REGION: us-central1
+        SERVICE_NAME: my-test-dev-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
+        
+    - if: github.ref == 'refs/heads/ENV-qa'
+      env:
+        RUN_REGION: us-central2
+        SERVICE_NAME: my-test-qa-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
+
+    - if: github.ref == 'refs/heads/master'
       env:
         RUN_REGION: us-central3
         SERVICE_NAME: my-test-prod-service
+      run: |-
+        echo "::set-env name=RUN_REGION::$RUN_REGION"
+        echo "::set-env name=SERVICE_NAME::$SERVICE_NAME"
 
     - name: Build
       shell: bash

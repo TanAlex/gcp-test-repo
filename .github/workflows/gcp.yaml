@@ -27,14 +27,14 @@ jobs:
         project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
 
     - name: Build
-          run: |-
-            echo "Buiding ..."
-            export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
-            echo "MY_PROJET_ID is:"
-            echo $MY_PROJECT_ID
-            echo "PROJET_ID is:"
-            echo $PROJECT_ID
-            gcloud services list --enabled
+      run: |-
+        echo "Buiding ..."
+        export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
+        echo "MY_PROJET_ID is:"
+        echo $MY_PROJECT_ID
+        echo "PROJET_ID is:"
+        echo $PROJECT_ID
+        gcloud services list --enabled
 
     - name: Deploy
       run: |-

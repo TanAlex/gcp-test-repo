@@ -1,4 +1,4 @@
-name: Deploy to Dev
+name: Build and Deploy
 
 on:
   push:
@@ -93,6 +93,7 @@ jobs:
         echo 
         echo "SERVICE_NAME: $SERVICE_NAME"
         echo "RUN_REGION: $RUN_REGION"
+        gcloud config set compute/region "$RUN_REGION"
         gcloud services list --enabled
         
 

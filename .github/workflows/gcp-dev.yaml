@@ -35,7 +35,17 @@ jobs:
         project_id: ${{ secrets.GCP_DEV_PROJECT_ID }}
 
     - name: Build
+      shell: bash
       run: |-
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
+        if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+          if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
+              echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
+              exit 1
+          fi
+        else
+          RUN_ACTION=deploy
+        fi
         echo "Buiding ..."
         export MY_PROJECT_ID=$(gcloud info --format='value(config.project)')
         echo "MY_PROJET_ID is:"
@@ -48,9 +58,19 @@ jobs:
         
 
     - name: Deploy
+      shell: bash
       run: |-
         env
         echo $PROJECT_ID
+        echo "GITHUB_EVENT_NAME : $GITHUB_EVENT_NAME"
+        if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+          if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
+              echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
+              exit 1
+          fi
+        else
+          RUN_ACTION=deploy
+        fi
         echo "RUN_ACTION:"
         echo $RUN_ACTION
         gsutil ls

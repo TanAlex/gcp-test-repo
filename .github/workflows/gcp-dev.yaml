@@ -40,7 +40,7 @@ jobs:
         if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
           if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
               echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
-              exit(1)
+              exit 1
           fi
         else
           RUN_ACTION=deploy
@@ -64,7 +64,7 @@ jobs:
         if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
           if [ "$GITHUB_REF" != "refs/heads/dev" ]; then
               echo "GITHUB_REF: $GITHUB_REF is not refs/heads/dev, quit"
-              exit(1)
+              exit 1
           fi
         else
           RUN_ACTION=deploy

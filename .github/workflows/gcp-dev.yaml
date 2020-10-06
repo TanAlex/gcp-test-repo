@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Deploy to Dev
 
 on:
   push:
@@ -16,6 +16,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_DEV_PROJECT_ID }}
   RUN_REGION: us-central1
   SERVICE_NAME: my-test-service
+  RUN_ACTION: "${{ github.event.inputs.action }}"
 
 jobs:
   setup-build-deploy:
@@ -44,8 +45,7 @@ jobs:
         echo "RUN_ACTION:"
         echo $RUN_ACTION
         gcloud services list --enabled
-      env:
-        RUN_ACTION: "${{ github.event.inputs.logLevel }}"
+        
 
     - name: Deploy
       run: |-
